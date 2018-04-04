@@ -131,14 +131,14 @@ module MarketBot
           result[:cover_image_url] = url
         end
 
-        nodes                    = doc.search('img[alt="Screenshot Image"]')
-        result[:screenshot_urls] = []
-        unless node.nil?
-          result[:screenshot_urls] = nodes.map do |n|
-            url                      = MarketBot::Util.fix_content_url(n[:src])
-            result[:cover_image_url] = url
-          end
-        end
+        # nodes                    = doc.search('img[alt="Screenshot Image"]')
+        # result[:screenshot_urls] = []
+        # unless node.nil?
+        #   result[:screenshot_urls] = nodes.map do |n|
+        #     url                      = MarketBot::Util.fix_content_url(n[:src])
+        #     result[:cover_image_url] = url
+        #   end
+        # end
 
         node               = doc.at_css('h2:contains("What\'s New")')
         result[:whats_new] = node.inner_html if node
