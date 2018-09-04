@@ -48,8 +48,8 @@ module MarketBot
               end
               result[:website_url] = href
             end
-
-            result[:email] = developer_div.at('a:contains("@")').text
+            email = developer_div.at('a:contains("@")')
+            result[:email] = email.text if email
 
             node = developer_div.at('a:contains("Privacy Policy")')
             if node
@@ -100,29 +100,28 @@ module MarketBot
 
         if doc.at_css('meta[itemprop="ratingValue"]') && doc.at_css('meta[itemprop="ratingCount"]')
           node            = doc.at_css('meta[itemprop="ratingValue"]')
-          result[:rating] = node[:content].strip
-          node            = doc.at_css('meta[itemprop="ratingCount"]')
-          result[:votes]  = node[:content].strip.to_i
+          result[:rating] = node[:content].strip if node
+          node            = doc.at_css('meta[itemprop="reviewCount"]')
+          result[:votes]  = node[:content].strip.to_i if node
         end
 
         a_similar = doc.at_css('a:contains("Similar")')
         if a_similar
           similar_divs     = a_similar.parent.parent.parent.next.children
-          result[:similar] = similar_divs.search('a').select do |a|
-            a['href'].start_with?('/store/apps/details')
-          end.map do |a|
-            { package: a['href'].split('?id=').last.strip }
-          end.compact.uniq
+          result[:similar] = similar_divs.search('a')
+                                         .select { |a| a['href'].start_with?('/store/apps/details') }
+                                         .map { |a| { package: a['href'].split('?id=').last.strip } }
+                                         .compact.uniq
         end
-
         h2_more = doc.at_css("h2:contains(\"#{result[:developer]}\")")
         if h2_more
-          more_divs                    = h2_more.parent.next.children
-          result[:more_from_developer] = more_divs.search('a').select do |a|
-            a['href'].start_with?('/store/apps/details')
-          end.map do |a|
-            { package: a['href'].split('?id=').last.strip }
-          end.compact.uniq
+          more_divs = h2_more.parent.next
+          if more_divs
+            result[:more_from_developer] = more_divs.children.search('a')
+                                                    .select { |a| a['href'].start_with?('/store/apps/details') }
+                                                    .map { |a| { package: a['href'].split('?id=').last.strip } }
+                                                    .compact.uniq
+          end
         end
 
         node = doc.at_css('img[alt="Cover art"]')
