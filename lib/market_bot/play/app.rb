@@ -113,7 +113,7 @@ module MarketBot
                                          .map { |a| { package: a['href'].split('?id=').last.strip } }
                                          .compact.uniq
         end
-        h2_more = doc.at_css("h2:contains(\"#{result[:developer]}\")")
+        h2_more = doc.at_css("h2:contains(\"#{css_escaped(result[:developer])}\")")
         if h2_more
           more_divs = h2_more.parent.next
           if more_divs
@@ -186,6 +186,10 @@ module MarketBot
             raise MarketBot::ResponseError, "Unhandled response: #{codes}"
           end
         end
+      end
+
+      def self.css_escaped(string)
+        return string.gsub('"', '&quot;')
       end
     end
   end

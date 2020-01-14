@@ -232,4 +232,10 @@ describe MarketBot::Play::App do
       app.update
     end.to raise_error(MarketBot::ResponseError)
   end
+
+  describe '.css_escaped' do
+    it 'returns the string, escaped for using in a css :contains call' do
+      expect(described_class.send(:css_escaped, 'Dwayne "The Rock" Johnson')).to eq('Dwayne &quot;The Rock&quot; Johnson')
+    end
+  end
 end
